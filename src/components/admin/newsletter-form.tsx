@@ -113,7 +113,7 @@ export function NewsletterForm({ existing }: Props) {
         setProgress(60);
       }
 
-      // Upload cover (optional)
+      // Cover: manual upload wins; else AI-generated (already uploaded); else keep existing
       let coverPath = existing?.cover_image_path ?? null;
       if (coverFile) {
         const cpath = `${new Date().getFullYear()}/${crypto.randomUUID()}-${coverFile.name}`;
@@ -123,6 +123,8 @@ export function NewsletterForm({ existing }: Props) {
         if (error) throw new Error("Cover upload failed: " + error.message);
         uploadedCoverPath = cpath;
         coverPath = cpath;
+      } else if (aiCoverPath) {
+        coverPath = aiCoverPath;
       }
 
       setProgress(80);
