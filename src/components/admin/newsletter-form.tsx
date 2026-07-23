@@ -337,18 +337,67 @@ export function NewsletterForm({ existing }: Props) {
                 Current: {existing.pdf_filename ?? existing.pdf_path}
               </p>
             )}
+            <button
+              type="button"
+              onClick={autoFillFromPdf}
+              disabled={!pdfFile || !!pdfError || !!aiBusy || !!busy}
+              className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--brand)]/40 bg-[color-mix(in_oklab,var(--brand)_10%,transparent)] px-3 text-xs font-medium text-[var(--brand)] hover:bg-[color-mix(in_oklab,var(--brand)_18%,transparent)] disabled:opacity-50"
+            >
+              {aiBusy === "analyze" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              {aiBusy === "analyze"
+                ? "Reading PDF…"
+                : aiBusy === "cover"
+                  ? "Generating cover…"
+                  : "Auto-fill from PDF with AI"}
+            </button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Extracts title, edition, date, description, tags and generates a matching cover.
+            </p>
           </div>
           <div>
             <Label className="text-xs uppercase tracking-widest">Cover image (optional)</Label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                setCoverFile(e.target.files?.[0] ?? null);
+                if (e.target.files?.[0]) {
+                  setAiCoverPath(null);
+                  setAiCoverPreview(null);
+                }
+              }}
               className="mt-2 block w-full text-sm text-muted-foreground file:mr-4 file:cursor-pointer file:rounded-md file:border file:border-[var(--border)] file:bg-secondary file:px-4 file:py-2 file:text-sm file:text-foreground hover:file:bg-[color-mix(in_oklab,var(--secondary)_80%,var(--brand))]"
             />
             {coverFile && (
               <p className="mt-2 text-xs text-muted-foreground">{coverFile.name}</p>
             )}
+            {aiCoverPreview && !coverFile && (
+              <div className="mt-3">
+                <img
+                  src={aiCoverPreview}
+                  alt="AI-generated cover preview"
+                  className="aspect-[3/4] w-40 border border-[var(--border)] object-cover"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">AI-generated cover</p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={regenerateCover}
+              disabled={!!aiBusy || !!busy}
+              className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-xs font-medium text-foreground hover:bg-secondary disabled:opacity-50"
+            >
+              {aiBusy === "cover" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Wand2 className="h-3.5 w-3.5" />
+              )}
+              {aiCoverPreview ? "Regenerate cover" : "Generate cover with AI"}
+            </button>
           </div>
         </div>
       </div>
