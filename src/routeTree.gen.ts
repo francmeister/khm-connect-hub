@@ -9,38 +9,237 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NewslettersIndexRouteImport } from './routes/newsletters.index'
+import { Route as NewslettersSlugRouteImport } from './routes/newsletters.$slug'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated.admin.settings'
+import { Route as AuthenticatedAdminNewslettersIndexRouteImport } from './routes/_authenticated.admin.newsletters.index'
+import { Route as AuthenticatedAdminNewslettersNewRouteImport } from './routes/_authenticated.admin.newsletters.new'
+import { Route as AuthenticatedAdminNewslettersIdEditRouteImport } from './routes/_authenticated.admin.newsletters.$id.edit'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewslettersIndexRoute = NewslettersIndexRouteImport.update({
+  id: '/newsletters/',
+  path: '/newsletters/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewslettersSlugRoute = NewslettersSlugRouteImport.update({
+  id: '/newsletters/$slug',
+  path: '/newsletters/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminNewslettersIndexRoute =
+  AuthenticatedAdminNewslettersIndexRouteImport.update({
+    id: '/newsletters/',
+    path: '/newsletters/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminNewslettersNewRoute =
+  AuthenticatedAdminNewslettersNewRouteImport.update({
+    id: '/newsletters/new',
+    path: '/newsletters/new',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminNewslettersIdEditRoute =
+  AuthenticatedAdminNewslettersIdEditRouteImport.update({
+    id: '/newsletters/$id/edit',
+    path: '/newsletters/$id/edit',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/newsletters/$slug': typeof NewslettersSlugRoute
+  '/newsletters/': typeof NewslettersIndexRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/newsletters/new': typeof AuthenticatedAdminNewslettersNewRoute
+  '/admin/newsletters/': typeof AuthenticatedAdminNewslettersIndexRoute
+  '/admin/newsletters/$id/edit': typeof AuthenticatedAdminNewslettersIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/newsletters/$slug': typeof NewslettersSlugRoute
+  '/newsletters': typeof NewslettersIndexRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/newsletters/new': typeof AuthenticatedAdminNewslettersNewRoute
+  '/admin/newsletters': typeof AuthenticatedAdminNewslettersIndexRoute
+  '/admin/newsletters/$id/edit': typeof AuthenticatedAdminNewslettersIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/newsletters/$slug': typeof NewslettersSlugRoute
+  '/newsletters/': typeof NewslettersIndexRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/newsletters/new': typeof AuthenticatedAdminNewslettersNewRoute
+  '/_authenticated/admin/newsletters/': typeof AuthenticatedAdminNewslettersIndexRoute
+  '/_authenticated/admin/newsletters/$id/edit': typeof AuthenticatedAdminNewslettersIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/reset-password'
+    | '/sitemap.xml'
+    | '/admin'
+    | '/newsletters/$slug'
+    | '/newsletters/'
+    | '/admin/settings'
+    | '/admin/'
+    | '/admin/newsletters/new'
+    | '/admin/newsletters/'
+    | '/admin/newsletters/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/reset-password'
+    | '/sitemap.xml'
+    | '/newsletters/$slug'
+    | '/newsletters'
+    | '/admin/settings'
+    | '/admin'
+    | '/admin/newsletters/new'
+    | '/admin/newsletters'
+    | '/admin/newsletters/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/about'
+    | '/auth'
+    | '/reset-password'
+    | '/sitemap.xml'
+    | '/_authenticated/admin'
+    | '/newsletters/$slug'
+    | '/newsletters/'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/newsletters/new'
+    | '/_authenticated/admin/newsletters/'
+    | '/_authenticated/admin/newsletters/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  NewslettersSlugRoute: typeof NewslettersSlugRoute
+  NewslettersIndexRoute: typeof NewslettersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +247,107 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/newsletters/': {
+      id: '/newsletters/'
+      path: '/newsletters'
+      fullPath: '/newsletters/'
+      preLoaderRoute: typeof NewslettersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/newsletters/$slug': {
+      id: '/newsletters/$slug'
+      path: '/newsletters/$slug'
+      fullPath: '/newsletters/$slug'
+      preLoaderRoute: typeof NewslettersSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/newsletters/': {
+      id: '/_authenticated/admin/newsletters/'
+      path: '/newsletters'
+      fullPath: '/admin/newsletters/'
+      preLoaderRoute: typeof AuthenticatedAdminNewslettersIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/newsletters/new': {
+      id: '/_authenticated/admin/newsletters/new'
+      path: '/newsletters/new'
+      fullPath: '/admin/newsletters/new'
+      preLoaderRoute: typeof AuthenticatedAdminNewslettersNewRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/newsletters/$id/edit': {
+      id: '/_authenticated/admin/newsletters/$id/edit'
+      path: '/newsletters/$id/edit'
+      fullPath: '/admin/newsletters/$id/edit'
+      preLoaderRoute: typeof AuthenticatedAdminNewslettersIdEditRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminNewslettersNewRoute: typeof AuthenticatedAdminNewslettersNewRoute
+  AuthenticatedAdminNewslettersIndexRoute: typeof AuthenticatedAdminNewslettersIndexRoute
+  AuthenticatedAdminNewslettersIdEditRoute: typeof AuthenticatedAdminNewslettersIdEditRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminNewslettersNewRoute: AuthenticatedAdminNewslettersNewRoute,
+  AuthenticatedAdminNewslettersIndexRoute:
+    AuthenticatedAdminNewslettersIndexRoute,
+  AuthenticatedAdminNewslettersIdEditRoute:
+    AuthenticatedAdminNewslettersIdEditRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  NewslettersSlugRoute: NewslettersSlugRoute,
+  NewslettersIndexRoute: NewslettersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
