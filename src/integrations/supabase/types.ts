@@ -14,16 +14,204 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_activity: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          id: string
+          newsletter_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          id?: string
+          newsletter_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          newsletter_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_activity_newsletter_id_fkey"
+            columns: ["newsletter_id"]
+            isOneToOne: false
+            referencedRelation: "newsletters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
+      newsletters: {
+        Row: {
+          categories: string[]
+          cover_image_path: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          edition_number: string
+          id: string
+          is_featured: boolean
+          keywords: string[]
+          pdf_filename: string | null
+          pdf_path: string
+          pdf_size: number | null
+          publication_date: string
+          publication_month: number | null
+          publication_year: number | null
+          published_at: string | null
+          slug: string
+          status: Database["public"]["Enums"]["newsletter_status"]
+          tech_spotlight_description: string | null
+          tech_spotlight_image_path: string | null
+          tech_spotlight_title: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          categories?: string[]
+          cover_image_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          description: string
+          edition_number: string
+          id?: string
+          is_featured?: boolean
+          keywords?: string[]
+          pdf_filename?: string | null
+          pdf_path: string
+          pdf_size?: number | null
+          publication_date: string
+          publication_month?: number | null
+          publication_year?: number | null
+          published_at?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["newsletter_status"]
+          tech_spotlight_description?: string | null
+          tech_spotlight_image_path?: string | null
+          tech_spotlight_title?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          categories?: string[]
+          cover_image_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          edition_number?: string
+          id?: string
+          is_featured?: boolean
+          keywords?: string[]
+          pdf_filename?: string | null
+          pdf_path?: string
+          pdf_size?: number | null
+          publication_date?: string
+          publication_month?: number | null
+          publication_year?: number | null
+          published_at?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["newsletter_status"]
+          tech_spotlight_description?: string | null
+          tech_spotlight_image_path?: string | null
+          tech_spotlight_title?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor"
+      newsletter_status: "draft" | "published" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +338,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor"],
+      newsletter_status: ["draft", "published", "archived"],
+    },
   },
 } as const
