@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MAX_PDF_BYTES,
@@ -10,13 +11,14 @@ import {
 } from "@/lib/khm";
 import { logActivity } from "@/lib/newsletters";
 import type { NewsletterRow } from "@/lib/newsletters";
+import { analyzeNewsletterPdf, generateNewsletterCover } from "@/lib/ai-newsletter.functions";
 import { Eyebrow } from "@/components/site/eyebrow";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Save, Upload } from "lucide-react";
+import { Loader2, Save, Sparkles, Upload, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
