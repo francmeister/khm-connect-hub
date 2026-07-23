@@ -7,10 +7,11 @@ export type NewsletterInsert = Database["public"]["Tables"]["newsletters"]["Inse
 export type NewsletterUpdate = Database["public"]["Tables"]["newsletters"]["Update"];
 export type NewsletterStatus = Database["public"]["Enums"]["newsletter_status"];
 
-export function coverUrl(path: string | null | undefined): string | null {
+export async function coverUrl(path: string | null | undefined): Promise<string | null> {
   if (!path) return null;
-  const { data } = supabase.storage.from(COVER_BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  const { data, error } = await supabase.storage.from(COVER_BUCKET).createSignedUrl(path, 3600);
+  if (error) return null;
+  return data.signedUrl;
 }
 
 /** Signed URL for a PDF path. Requires admin session OR a published newsletter (via public server function). */

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { NewsletterRow } from "@/lib/newsletters";
 import { coverUrl } from "@/lib/newsletters";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,21 @@ interface Props {
 }
 
 export function CoverThumb({ newsletter, className }: Props) {
-  const src = coverUrl(newsletter.cover_image_path);
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!newsletter.cover_image_path) {
+      setSrc(null);
+      return;
+    }
+    coverUrl(newsletter.cover_image_path).then((url) => {
+      if (!cancelled) setSrc(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [newsletter.cover_image_path]);
 
   return (
     <div
