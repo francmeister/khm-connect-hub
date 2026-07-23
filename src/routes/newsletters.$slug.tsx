@@ -103,7 +103,7 @@ function NewsletterDetail() {
 
         {(newsletter.categories ?? []).length > 0 && (
           <div className="mt-5 flex flex-wrap gap-2">
-            {newsletter.categories.map((c) => (
+            {newsletter.categories.map((c: string) => (
               <span
                 key={c}
                 className="border border-[var(--border)] px-3 py-1 text-[11px] uppercase tracking-widest text-muted-foreground"
