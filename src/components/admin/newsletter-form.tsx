@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MAX_PDF_BYTES,
@@ -10,13 +11,14 @@ import {
 } from "@/lib/khm";
 import { logActivity } from "@/lib/newsletters";
 import type { NewsletterRow } from "@/lib/newsletters";
+import { analyzeNewsletterPdf, generateNewsletterCover } from "@/lib/ai-newsletter.functions";
 import { Eyebrow } from "@/components/site/eyebrow";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Save, Upload } from "lucide-react";
+import { Loader2, Save, Sparkles, Upload, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -39,8 +41,14 @@ export function NewsletterForm({ existing }: Props) {
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [aiCoverPath, setAiCoverPath] = useState<string | null>(null);
+  const [aiCoverPreview, setAiCoverPreview] = useState<string | null>(null);
+  const [aiBusy, setAiBusy] = useState<null | "analyze" | "cover">(null);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState<null | "publish" | "draft">(null);
+
+  const analyzeFn = useServerFn(analyzeNewsletterPdf);
+  const coverFn = useServerFn(generateNewsletterCover);
 
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
@@ -54,6 +62,78 @@ export function NewsletterForm({ existing }: Props) {
     if (pdfFile.size > MAX_PDF_BYTES) return `File must be ≤ ${formatBytes(MAX_PDF_BYTES)}.`;
     return null;
   }, [pdfFile]);
+
+  async function fileToBase64(file: File): Promise<string> {
+    const buf = await file.arrayBuffer();
+    let binary = "";
+    const bytes = new Uint8Array(buf);
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(
+        null,
+        Array.from(bytes.subarray(i, i + chunk)),
+      );
+    }
+    return btoa(binary);
+  }
+
+  async function autoFillFromPdf() {
+    if (!pdfFile) {
+      toast.error("Attach a PDF first.");
+      return;
+    }
+    if (pdfError) {
+      toast.error(pdfError);
+      return;
+    }
+    setAiBusy("analyze");
+    try {
+      toast.info("Reading PDF with AI…");
+      const b64 = await fileToBase64(pdfFile);
+      const meta = await analyzeFn({
+        data: { pdfBase64: b64, filename: pdfFile.name },
+      });
+      setTitle(meta.title);
+      setSlug(slugify(meta.title));
+      setSlugTouched(true);
+      setEdition(meta.edition_number);
+      setPubDate(meta.publication_date);
+      setDescription(meta.description);
+      setCategories(meta.categories.join(", "));
+      setKeywords(meta.keywords.join(", "));
+      if (meta.tech_spotlight_title) setSpotTitle(meta.tech_spotlight_title);
+      if (meta.tech_spotlight_description) setSpotDesc(meta.tech_spotlight_description);
+      toast.success("Metadata extracted. Generating cover…");
+      setAiBusy("cover");
+      const cover = await coverFn({ data: { prompt: meta.cover_prompt } });
+      setAiCoverPath(cover.path);
+      setAiCoverPreview(cover.signedUrl);
+      toast.success("Cover generated. Review then publish.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "AI auto-fill failed");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
+  async function regenerateCover() {
+    const prompt = [title, description, categories].filter(Boolean).join(". ");
+    if (!prompt) {
+      toast.error("Fill in title/description first.");
+      return;
+    }
+    setAiBusy("cover");
+    try {
+      const cover = await coverFn({ data: { prompt } });
+      setAiCoverPath(cover.path);
+      setAiCoverPreview(cover.signedUrl);
+      toast.success("New cover generated.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Cover generation failed");
+    } finally {
+      setAiBusy(null);
+    }
+  }
 
   async function save(target: "publish" | "draft") {
     if (busy) return;
@@ -105,7 +185,7 @@ export function NewsletterForm({ existing }: Props) {
         setProgress(60);
       }
 
-      // Upload cover (optional)
+      // Cover: manual upload wins; else AI-generated (already uploaded); else keep existing
       let coverPath = existing?.cover_image_path ?? null;
       if (coverFile) {
         const cpath = `${new Date().getFullYear()}/${crypto.randomUUID()}-${coverFile.name}`;
@@ -115,6 +195,8 @@ export function NewsletterForm({ existing }: Props) {
         if (error) throw new Error("Cover upload failed: " + error.message);
         uploadedCoverPath = cpath;
         coverPath = cpath;
+      } else if (aiCoverPath) {
+        coverPath = aiCoverPath;
       }
 
       setProgress(80);
@@ -255,18 +337,67 @@ export function NewsletterForm({ existing }: Props) {
                 Current: {existing.pdf_filename ?? existing.pdf_path}
               </p>
             )}
+            <button
+              type="button"
+              onClick={autoFillFromPdf}
+              disabled={!pdfFile || !!pdfError || !!aiBusy || !!busy}
+              className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--brand)]/40 bg-[color-mix(in_oklab,var(--brand)_10%,transparent)] px-3 text-xs font-medium text-[var(--brand)] hover:bg-[color-mix(in_oklab,var(--brand)_18%,transparent)] disabled:opacity-50"
+            >
+              {aiBusy === "analyze" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              {aiBusy === "analyze"
+                ? "Reading PDF…"
+                : aiBusy === "cover"
+                  ? "Generating cover…"
+                  : "Auto-fill from PDF with AI"}
+            </button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Extracts title, edition, date, description, tags and generates a matching cover.
+            </p>
           </div>
           <div>
             <Label className="text-xs uppercase tracking-widest">Cover image (optional)</Label>
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                setCoverFile(e.target.files?.[0] ?? null);
+                if (e.target.files?.[0]) {
+                  setAiCoverPath(null);
+                  setAiCoverPreview(null);
+                }
+              }}
               className="mt-2 block w-full text-sm text-muted-foreground file:mr-4 file:cursor-pointer file:rounded-md file:border file:border-[var(--border)] file:bg-secondary file:px-4 file:py-2 file:text-sm file:text-foreground hover:file:bg-[color-mix(in_oklab,var(--secondary)_80%,var(--brand))]"
             />
             {coverFile && (
               <p className="mt-2 text-xs text-muted-foreground">{coverFile.name}</p>
             )}
+            {aiCoverPreview && !coverFile && (
+              <div className="mt-3">
+                <img
+                  src={aiCoverPreview}
+                  alt="AI-generated cover preview"
+                  className="aspect-[3/4] w-40 border border-[var(--border)] object-cover"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">AI-generated cover</p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={regenerateCover}
+              disabled={!!aiBusy || !!busy}
+              className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-xs font-medium text-foreground hover:bg-secondary disabled:opacity-50"
+            >
+              {aiBusy === "cover" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Wand2 className="h-3.5 w-3.5" />
+              )}
+              {aiCoverPreview ? "Regenerate cover" : "Generate cover with AI"}
+            </button>
           </div>
         </div>
       </div>
