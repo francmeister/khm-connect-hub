@@ -41,8 +41,14 @@ export function NewsletterForm({ existing }: Props) {
 
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [aiCoverPath, setAiCoverPath] = useState<string | null>(null);
+  const [aiCoverPreview, setAiCoverPreview] = useState<string | null>(null);
+  const [aiBusy, setAiBusy] = useState<null | "analyze" | "cover">(null);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState<null | "publish" | "draft">(null);
+
+  const analyzeFn = useServerFn(analyzeNewsletterPdf);
+  const coverFn = useServerFn(generateNewsletterCover);
 
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
