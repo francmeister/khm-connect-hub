@@ -63,6 +63,78 @@ export function NewsletterForm({ existing }: Props) {
     return null;
   }, [pdfFile]);
 
+  async function fileToBase64(file: File): Promise<string> {
+    const buf = await file.arrayBuffer();
+    let binary = "";
+    const bytes = new Uint8Array(buf);
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(
+        null,
+        Array.from(bytes.subarray(i, i + chunk)),
+      );
+    }
+    return btoa(binary);
+  }
+
+  async function autoFillFromPdf() {
+    if (!pdfFile) {
+      toast.error("Attach a PDF first.");
+      return;
+    }
+    if (pdfError) {
+      toast.error(pdfError);
+      return;
+    }
+    setAiBusy("analyze");
+    try {
+      toast.info("Reading PDF with AI…");
+      const b64 = await fileToBase64(pdfFile);
+      const meta = await analyzeFn({
+        data: { pdfBase64: b64, filename: pdfFile.name },
+      });
+      setTitle(meta.title);
+      setSlug(slugify(meta.title));
+      setSlugTouched(true);
+      setEdition(meta.edition_number);
+      setPubDate(meta.publication_date);
+      setDescription(meta.description);
+      setCategories(meta.categories.join(", "));
+      setKeywords(meta.keywords.join(", "));
+      if (meta.tech_spotlight_title) setSpotTitle(meta.tech_spotlight_title);
+      if (meta.tech_spotlight_description) setSpotDesc(meta.tech_spotlight_description);
+      toast.success("Metadata extracted. Generating cover…");
+      setAiBusy("cover");
+      const cover = await coverFn({ data: { prompt: meta.cover_prompt } });
+      setAiCoverPath(cover.path);
+      setAiCoverPreview(cover.signedUrl);
+      toast.success("Cover generated. Review then publish.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "AI auto-fill failed");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
+  async function regenerateCover() {
+    const prompt = [title, description, categories].filter(Boolean).join(". ");
+    if (!prompt) {
+      toast.error("Fill in title/description first.");
+      return;
+    }
+    setAiBusy("cover");
+    try {
+      const cover = await coverFn({ data: { prompt } });
+      setAiCoverPath(cover.path);
+      setAiCoverPreview(cover.signedUrl);
+      toast.success("New cover generated.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Cover generation failed");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
   async function save(target: "publish" | "draft") {
     if (busy) return;
     if (!title || !edition || !pubDate || !description || !slug) {
