@@ -14,11 +14,9 @@ const AnalysisSchema = z.object({
   cover_prompt: z.string(),
 });
 
-async function assertAdmin(
-  supabase: { rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => Promise<{ data: boolean | null }> },
-  userId: string,
-) {
-  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+async function assertAdmin(supabase: unknown, userId: string) {
+  const client = supabase as { rpc: (fn: "has_role", args: { _user_id: string; _role: "admin" }) => PromiseLike<{ data: boolean | null }> };
+  const { data } = await client.rpc("has_role", { _user_id: userId, _role: "admin" });
   if (!data) throw new Error("Forbidden");
 }
 
