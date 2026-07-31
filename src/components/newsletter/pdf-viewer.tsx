@@ -1,7 +1,20 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { ClientOnly } from "@tanstack/react-router";
 import { Download, ExternalLink, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getPublishedPdfUrl } from "@/lib/pdf.functions";
+
+const PdfReader = lazy(() => import("./pdf-reader").then((m) => ({ default: m.PdfReader })));
+
+function ReaderFallback() {
+  return (
+    <div className="grid h-[72vh] place-items-center rounded-md border border-[var(--border)] bg-surface-2">
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Preparing reader…
+      </div>
+    </div>
+  );
+}
 
 export function PdfViewer({ slug, title }: { slug: string; title: string }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -72,13 +85,11 @@ export function PdfViewer({ slug, title }: { slug: string; title: string }) {
           <Download className="h-4 w-4" /> Download PDF
         </a>
       </div>
-      <div className="overflow-hidden rounded-md border border-[var(--border)] bg-neutral-100">
-        <iframe
-          src={`${url}#toolbar=1&navpanes=0`}
-          title={`${title} PDF viewer`}
-          className="h-[78vh] w-full bg-neutral-100"
-        />
-      </div>
+      <ClientOnly fallback={<ReaderFallback />}>
+        <Suspense fallback={<ReaderFallback />}>
+          <PdfReader url={url} title={title} />
+        </Suspense>
+      </ClientOnly>
     </div>
   );
 }
