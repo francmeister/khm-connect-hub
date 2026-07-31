@@ -51,6 +51,12 @@ export function PdfReader({
   const rendered = useRef<Set<number>>(new Set());
   const restoring = useRef(false);
 
+  // Load any saved position for this edition
+  useEffect(() => {
+    setResumed(false);
+    setSaved(loadReadingProgress(slug));
+  }, [slug]);
+
 
   // Load document
   useEffect(() => {
