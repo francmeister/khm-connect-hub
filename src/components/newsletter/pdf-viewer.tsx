@@ -87,7 +87,7 @@ export function PdfViewer({ slug, title }: { slug: string; title: string }) {
       </div>
       <ClientOnly fallback={<ReaderFallback />}>
         <Suspense fallback={<ReaderFallback />}>
-          <PdfReader url={url} title={title} />
+          <PdfReader url={url} title={title} slug={slug} />
         </Suspense>
       </ClientOnly>
     </div>
