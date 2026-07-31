@@ -315,12 +315,17 @@ export function NewsletterForm({ existing }: Props) {
       if (uploadedPdfPath) await supabase.storage.from(PDF_BUCKET).remove([uploadedPdfPath]);
       if (uploadedCoverPath)
         await supabase.storage.from(COVER_BUCKET).remove([uploadedCoverPath]);
-      const msg =
+      const raw =
         err instanceof Error
           ? err.message
           : typeof err === "object" && err && "message" in err
             ? String((err as { message: unknown }).message)
             : "Save failed";
+      let msg = raw;
+      if (raw.includes("newsletters_edition_number_key"))
+        msg = `Edition number "${edition}" is already used by another edition. Change it or remove the other record.`;
+      else if (raw.includes("newsletters_slug_key"))
+        msg = `The URL slug for "${title}" is already taken by another edition. Adjust the title or slug.`;
       toast.error(msg);
     } finally {
       setBusy(null);
