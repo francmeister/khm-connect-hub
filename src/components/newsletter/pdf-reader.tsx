@@ -7,18 +7,34 @@ import {
   Minimize2,
   PanelLeftClose,
   PanelLeftOpen,
+  RotateCcw,
+  X,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
 import * as pdfjs from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import type { PDFDocumentProxy } from "pdfjs-dist";
+import {
+  clearReadingProgress,
+  loadReadingProgress,
+  saveReadingProgress,
+  type ReadingProgress,
+} from "@/lib/reading-progress";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
 type PageEl = HTMLDivElement | null;
 
-export function PdfReader({ url, title }: { url: string; title: string }) {
+export function PdfReader({
+  url,
+  title,
+  slug,
+}: {
+  url: string;
+  title: string;
+  slug: string;
+}) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [numPages, setNumPages] = useState(0);
   const [current, setCurrent] = useState(1);
@@ -27,10 +43,14 @@ export function PdfReader({ url, title }: { url: string; title: string }) {
   const [showThumbs, setShowThumbs] = useState(true);
   const [wide, setWide] = useState(false);
   const [error, setError] = useState(false);
+  const [saved, setSaved] = useState<ReadingProgress | null>(null);
+  const [resumed, setResumed] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const pageRefs = useRef<PageEl[]>([]);
   const rendered = useRef<Set<number>>(new Set());
+  const restoring = useRef(false);
+
 
   // Load document
   useEffect(() => {
