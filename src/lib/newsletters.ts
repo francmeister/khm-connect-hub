@@ -31,6 +31,15 @@ export async function fetchPublishedNewsletters(): Promise<NewsletterRow[]> {
   return data ?? [];
 }
 
+/** Ranked full-text search across published editions (title, edition, description, categories, keywords, spotlight). */
+export async function searchPublishedNewsletters(query: string): Promise<NewsletterRow[]> {
+  const { data, error } = await supabase.rpc("search_published_newsletters", {
+    _query: query ?? "",
+  });
+  if (error) throw error;
+  return (data ?? []) as NewsletterRow[];
+}
+
 export async function fetchNewsletterBySlug(slug: string): Promise<NewsletterRow | null> {
   const { data, error } = await supabase
     .from("newsletters")
