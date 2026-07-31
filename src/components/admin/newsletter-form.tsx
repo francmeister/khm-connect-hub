@@ -104,34 +104,68 @@ export function NewsletterForm({ existing }: Props) {
       return;
     }
     setAiBusy("analyze");
+    setProposal(null);
     try {
       toast.info("Reading PDF with AI…");
       const b64 = await fileToBase64(pdfFile);
       const meta = await analyzeFn({
         data: { pdfBase64: b64, filename: pdfFile.name },
       });
-      setTitle(meta.title);
-      setSlug(slugify(meta.title));
-      setSlugTouched(true);
-      setEdition(meta.edition_number);
-      setPubDate(meta.publication_date);
-      setDescription(meta.description);
-      setCategories(meta.categories.join(", "));
-      setKeywords(meta.keywords.join(", "));
-      if (meta.tech_spotlight_title) setSpotTitle(meta.tech_spotlight_title);
-      if (meta.tech_spotlight_description) setSpotDesc(meta.tech_spotlight_description);
       toast.success("Metadata extracted. Generating cover…");
       setAiBusy("cover");
-      const cover = await coverFn({ data: { prompt: meta.cover_prompt } });
-      setAiCoverPath(cover.path);
-      setAiCoverPreview(cover.signedUrl);
-      toast.success("Cover generated. Review then publish.");
+      let coverPath: string | null = null;
+      let coverUrl: string | null = null;
+      try {
+        const cover = await coverFn({ data: { prompt: meta.cover_prompt } });
+        coverPath = cover.path;
+        coverUrl = cover.signedUrl;
+      } catch {
+        toast.error("Cover generation failed — you can retry it in the preview.");
+      }
+      setProposal({ ...meta, coverPath, coverUrl });
+      toast.success("Preview ready — review before applying.");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "AI auto-fill failed");
     } finally {
       setAiBusy(null);
     }
   }
+
+  function applyProposal() {
+    if (!proposal) return;
+    setTitle(proposal.title);
+    setSlug(slugify(proposal.title));
+    setSlugTouched(true);
+    setEdition(proposal.edition_number);
+    setPubDate(proposal.publication_date);
+    setDescription(proposal.description);
+    setCategories(proposal.categories.join(", "));
+    setKeywords(proposal.keywords.join(", "));
+    if (proposal.tech_spotlight_title) setSpotTitle(proposal.tech_spotlight_title);
+    if (proposal.tech_spotlight_description) setSpotDesc(proposal.tech_spotlight_description);
+    if (proposal.coverPath) {
+      setAiCoverPath(proposal.coverPath);
+      setAiCoverPreview(proposal.coverUrl);
+      setCoverFile(null);
+    }
+    setProposal(null);
+    toast.success("Applied to the form. Review and save when ready.");
+  }
+
+  async function regenerateProposalCover() {
+    if (!proposal) return;
+    setAiBusy("cover");
+    try {
+      const cover = await coverFn({ data: { prompt: proposal.cover_prompt } });
+      setProposal({ ...proposal, coverPath: cover.path, coverUrl: cover.signedUrl });
+      toast.success("New cover generated.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Cover generation failed");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
 
   async function regenerateCover() {
     const prompt = [title, description, categories].filter(Boolean).join(". ");
