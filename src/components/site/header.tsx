@@ -12,7 +12,7 @@ const NAV = [
   { label: "About", to: "/about" },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ logoHeight = 34 }: { logoHeight?: number }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
   const { isAdmin, session } = useAuth();
@@ -24,7 +24,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[color-mix(in_oklab,var(--background)_92%,transparent)] backdrop-blur">
       <Container size="wide">
         <div className="flex h-16 items-center justify-between">
-          <KhmLogo height={34} />
+          <KhmLogo height={logoHeight} />
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
             {NAV.map((item) => (
