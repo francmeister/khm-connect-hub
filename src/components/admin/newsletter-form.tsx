@@ -453,6 +453,92 @@ export function NewsletterForm({ existing }: Props) {
         </div>
       </div>
 
+      {proposal && (
+        <div className="border border-[var(--brand)]/40 bg-surface p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Eyebrow tone="brand">AI EXTRACTION PREVIEW</Eyebrow>
+            <p className="text-xs text-muted-foreground">
+              Nothing is saved yet — review, then apply to the form.
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1fr)_10rem]">
+            <dl className="space-y-4">
+              <PreviewRow label="Title" value={proposal.title} />
+              <PreviewRow label="Edition" value={proposal.edition_number} />
+              <PreviewRow label="Publication date" value={proposal.publication_date} />
+              <PreviewRow label="Slug" value={slugify(proposal.title)} mono />
+              <PreviewRow label="Description" value={proposal.description} />
+              <PreviewRow
+                label="Categories"
+                value={proposal.categories.join(", ") || "—"}
+              />
+              <PreviewRow label="Keywords" value={proposal.keywords.join(", ") || "—"} />
+              <PreviewRow
+                label="Spotlight title"
+                value={proposal.tech_spotlight_title || "—"}
+              />
+              <PreviewRow
+                label="Spotlight description"
+                value={proposal.tech_spotlight_description || "—"}
+              />
+            </dl>
+
+            <div>
+              <Label className="text-xs uppercase tracking-widest">Cover</Label>
+              <div className="mt-2">
+                {proposal.coverUrl ? (
+                  <img
+                    src={proposal.coverUrl}
+                    alt="Proposed AI-generated cover"
+                    className="aspect-[3/4] w-40 border border-[var(--border)] object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-[3/4] w-40 items-center justify-center border border-dashed border-[var(--border)] text-center text-xs text-muted-foreground">
+                    No cover yet
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={regenerateProposalCover}
+                disabled={!!aiBusy || !!busy}
+                className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-xs font-medium text-foreground hover:bg-secondary disabled:opacity-50"
+              >
+                {aiBusy === "cover" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Wand2 className="h-3.5 w-3.5" />
+                )}
+                {proposal.coverUrl ? "Regenerate" : "Generate cover"}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-[var(--border)] pt-5">
+            <button
+              type="button"
+              onClick={applyProposal}
+              disabled={!!aiBusy || !!busy}
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-[var(--brand-strong)] disabled:opacity-60"
+            >
+              <Sparkles className="h-4 w-4" />
+              Apply to form
+            </button>
+            <button
+              type="button"
+              onClick={() => setProposal(null)}
+              disabled={!!aiBusy}
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-[var(--border)] px-5 text-sm font-medium text-foreground hover:bg-secondary disabled:opacity-60"
+            >
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
+
+
+
       <div className="border border-[var(--border)] bg-surface p-6">
         <Eyebrow>TECHNOLOGY SPOTLIGHT (OPTIONAL)</Eyebrow>
         <div className="mt-4 space-y-4">
