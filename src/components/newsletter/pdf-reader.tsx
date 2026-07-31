@@ -38,10 +38,7 @@ export function PdfReader({ url, title }: { url: string; title: string }) {
     const task = pdfjs.getDocument({ url });
     task.promise
       .then((d) => {
-        if (cancelled) {
-          d.destroy();
-          return;
-        }
+        if (cancelled) return;
         setDoc(d);
         setNumPages(d.numPages);
       })
