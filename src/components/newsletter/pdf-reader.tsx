@@ -69,7 +69,8 @@ export function PdfReader({ url, title }: { url: string; title: string }) {
         if (!ctx) return;
         await page.render({ canvas, canvasContext: ctx, viewport }).promise;
         container.replaceChildren(canvas);
-      } catch {
+      } catch (e) {
+        console.error('pdf page render failed', pageNumber, e);
         rendered.current.delete(pageNumber);
       }
     },
