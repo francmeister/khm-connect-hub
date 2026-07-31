@@ -25,6 +25,21 @@ interface Props {
   existing?: NewsletterRow;
 }
 
+interface AiProposal {
+  title: string;
+  edition_number: string;
+  publication_date: string;
+  description: string;
+  categories: string[];
+  keywords: string[];
+  tech_spotlight_title?: string | null;
+  tech_spotlight_description?: string | null;
+  cover_prompt: string;
+  coverPath: string | null;
+  coverUrl: string | null;
+}
+
+
 export function NewsletterForm({ existing }: Props) {
   const navigate = useNavigate();
   const [title, setTitle] = useState(existing?.title ?? "");
