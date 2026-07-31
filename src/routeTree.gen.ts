@@ -19,6 +19,7 @@ import { Route as NewslettersIndexRouteImport } from './routes/newsletters.index
 import { Route as NewslettersSlugRouteImport } from './routes/newsletters.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedAdminTeamRouteImport } from './routes/_authenticated.admin.team'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated.admin.settings'
 import { Route as AuthenticatedAdminNewslettersIndexRouteImport } from './routes/_authenticated.admin.newsletters.index'
 import { Route as AuthenticatedAdminNewslettersNewRouteImport } from './routes/_authenticated.admin.newsletters.new'
@@ -73,6 +74,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminTeamRoute = AuthenticatedAdminTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/newsletters/$slug': typeof NewslettersSlugRoute
   '/newsletters/': typeof NewslettersIndexRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/team': typeof AuthenticatedAdminTeamRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/newsletters/new': typeof AuthenticatedAdminNewslettersNewRoute
   '/admin/newsletters/': typeof AuthenticatedAdminNewslettersIndexRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/newsletters/$slug': typeof NewslettersSlugRoute
   '/newsletters': typeof NewslettersIndexRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/team': typeof AuthenticatedAdminTeamRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/newsletters/new': typeof AuthenticatedAdminNewslettersNewRoute
   '/admin/newsletters': typeof AuthenticatedAdminNewslettersIndexRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/newsletters/$slug': typeof NewslettersSlugRoute
   '/newsletters/': typeof NewslettersIndexRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/team': typeof AuthenticatedAdminTeamRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/newsletters/new': typeof AuthenticatedAdminNewslettersNewRoute
   '/_authenticated/admin/newsletters/': typeof AuthenticatedAdminNewslettersIndexRoute
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/newsletters/$slug'
     | '/newsletters/'
     | '/admin/settings'
+    | '/admin/team'
     | '/admin/'
     | '/admin/newsletters/new'
     | '/admin/newsletters/'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/newsletters/$slug'
     | '/newsletters'
     | '/admin/settings'
+    | '/admin/team'
     | '/admin'
     | '/admin/newsletters/new'
     | '/admin/newsletters'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/newsletters/$slug'
     | '/newsletters/'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/team'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/newsletters/new'
     | '/_authenticated/admin/newsletters/'
@@ -275,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/team': {
+      id: '/_authenticated/admin/team'
+      path: '/team'
+      fullPath: '/admin/team'
+      preLoaderRoute: typeof AuthenticatedAdminTeamRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
       path: '/settings'
@@ -308,6 +327,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminTeamRoute: typeof AuthenticatedAdminTeamRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminNewslettersNewRoute: typeof AuthenticatedAdminNewslettersNewRoute
   AuthenticatedAdminNewslettersIndexRoute: typeof AuthenticatedAdminNewslettersIndexRoute
@@ -316,6 +336,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminTeamRoute: AuthenticatedAdminTeamRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminNewslettersNewRoute: AuthenticatedAdminNewslettersNewRoute,
   AuthenticatedAdminNewslettersIndexRoute:

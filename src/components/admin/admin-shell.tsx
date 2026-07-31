@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { KhmLogo } from "@/components/site/logo";
 import { Eyebrow } from "@/components/site/eyebrow";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Newspaper, Upload, Settings, ExternalLink, LogOut } from "lucide-react";
+import { LayoutDashboard, Newspaper, Upload, Settings, ExternalLink, LogOut, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ const NAV = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/newsletters", label: "Newsletters", icon: Newspaper },
   { to: "/admin/newsletters/new", label: "Upload Newsletter", icon: Upload },
+  { to: "/admin/team", label: "Admin Team", icon: Users },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
