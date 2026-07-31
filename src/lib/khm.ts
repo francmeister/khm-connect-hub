@@ -1,4 +1,4 @@
-import khmLogoAsset from "@/assets/khm-logo.svg.asset.json";
+import khmLogoAsset from "@/assets/khm-logo.png.asset.json";
 
 export const KHM_LOGO_URL = khmLogoAsset.url;
 export const KHM_CONTACT_EMAIL_FALLBACK = "info@khmtechnology.com";
