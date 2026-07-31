@@ -365,50 +365,9 @@ export function NewsletterForm({ existing }: Props) {
       </div>
 
       <div className="border border-[var(--border)] bg-surface p-6">
-        <Eyebrow tone="brand">FILES</Eyebrow>
-        <div className="mt-4 grid gap-6 md:grid-cols-2">
-          <div>
-            <Label className="text-xs uppercase tracking-widest">
-              PDF file {existing ? "(replace)" : "*"}
-            </Label>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
-              className="mt-2 block w-full text-sm text-muted-foreground file:mr-4 file:cursor-pointer file:rounded-md file:border file:border-[var(--border)] file:bg-secondary file:px-4 file:py-2 file:text-sm file:text-foreground hover:file:bg-[color-mix(in_oklab,var(--secondary)_80%,var(--brand))]"
-            />
-            {pdfFile && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {pdfFile.name} — {formatBytes(pdfFile.size)}
-              </p>
-            )}
-            {pdfError && <p className="mt-2 text-xs text-destructive">{pdfError}</p>}
-            {existing && !pdfFile && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                Current: {existing.pdf_filename ?? existing.pdf_path}
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={autoFillFromPdf}
-              disabled={!pdfFile || !!pdfError || !!aiBusy || !!busy}
-              className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--brand)]/40 bg-[color-mix(in_oklab,var(--brand)_10%,transparent)] px-3 text-xs font-medium text-[var(--brand)] hover:bg-[color-mix(in_oklab,var(--brand)_18%,transparent)] disabled:opacity-50"
-            >
-              {aiBusy === "analyze" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Sparkles className="h-3.5 w-3.5" />
-              )}
-              {aiBusy === "analyze"
-                ? "Reading PDF…"
-                : aiBusy === "cover"
-                  ? "Generating cover…"
-                  : "Auto-fill from PDF with AI"}
-            </button>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Extracts title, edition, date, description, tags and generates a matching cover.
-            </p>
-          </div>
+        <Eyebrow tone="brand">COVER</Eyebrow>
+        <div className="mt-4 grid gap-6">
+
           <div>
             <Label className="text-xs uppercase tracking-widest">Cover image (optional)</Label>
             <input
