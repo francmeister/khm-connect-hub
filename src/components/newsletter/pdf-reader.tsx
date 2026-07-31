@@ -233,6 +233,44 @@ export function PdfReader({
         />
       </div>
 
+      {showResume && saved && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] bg-surface-2 px-3 py-2">
+          <span className="font-mono text-[11px] uppercase tracking-widest text-[var(--brand)]">
+            Resume reading
+          </span>
+          <span className="text-sm text-muted-foreground">
+            You left off on page {saved.page}
+            {saved.numPages ? ` of ${saved.numPages}` : ""} ({saved.percent}% read).
+          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={resume}
+              className="inline-flex h-8 items-center gap-2 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-[var(--brand-strong)]"
+            >
+              Continue on page {saved.page}
+            </button>
+            <button
+              type="button"
+              onClick={startOver}
+              className="inline-flex h-8 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Start over
+            </button>
+            <button
+              type="button"
+              onClick={() => setResumed(true)}
+              className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
+              aria-label="Dismiss resume prompt"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+
+
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] bg-surface-2 px-3 py-2">
         <button
