@@ -56,8 +56,9 @@ function ArchivePage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/newsletters" });
 
-  const setParam = (patch: Record<string, string>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
+  type ArchiveSearch = z.infer<typeof searchSchema>;
+  const setParam = (patch: Partial<ArchiveSearch>) =>
+    navigate({ search: (prev: ArchiveSearch) => ({ ...prev, ...patch }), replace: true });
 
   // Debounced text inputs (URL stays clean while typing)
   const [qInput, setQInput] = useState(search.q);
@@ -138,7 +139,7 @@ function ArchivePage() {
   useEffect(() => setLimit(9), [search]);
   const shown = filtered.slice(0, limit);
 
-  const activeChips: { label: string; clear: Record<string, string> }[] = [
+  const activeChips: { label: string; clear: Partial<ArchiveSearch> }[] = [
     ...(search.q ? [{ label: `“${search.q}”`, clear: { q: "" } }] : []),
     ...(search.edition ? [{ label: `Edition ${search.edition}`, clear: { edition: "" } }] : []),
     ...(search.year !== ALL ? [{ label: search.year, clear: { year: ALL } }] : []),
