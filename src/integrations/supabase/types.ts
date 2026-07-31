@@ -88,6 +88,7 @@ export type Database = {
           publication_month: number | null
           publication_year: number | null
           published_at: string | null
+          search_vector: unknown
           slug: string
           status: Database["public"]["Enums"]["newsletter_status"]
           tech_spotlight_description: string | null
@@ -114,6 +115,7 @@ export type Database = {
           publication_month?: number | null
           publication_year?: number | null
           published_at?: string | null
+          search_vector?: unknown
           slug: string
           status?: Database["public"]["Enums"]["newsletter_status"]
           tech_spotlight_description?: string | null
@@ -140,6 +142,7 @@ export type Database = {
           publication_month?: number | null
           publication_year?: number | null
           published_at?: string | null
+          search_vector?: unknown
           slug?: string
           status?: Database["public"]["Enums"]["newsletter_status"]
           tech_spotlight_description?: string | null
@@ -207,6 +210,42 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      search_published_newsletters: {
+        Args: { _query: string }
+        Returns: {
+          categories: string[]
+          cover_image_path: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          edition_number: string
+          id: string
+          is_featured: boolean
+          keywords: string[]
+          pdf_filename: string | null
+          pdf_path: string
+          pdf_size: number | null
+          publication_date: string
+          publication_month: number | null
+          publication_year: number | null
+          published_at: string | null
+          search_vector: unknown
+          slug: string
+          status: Database["public"]["Enums"]["newsletter_status"]
+          tech_spotlight_description: string | null
+          tech_spotlight_image_path: string | null
+          tech_spotlight_title: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "newsletters"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
