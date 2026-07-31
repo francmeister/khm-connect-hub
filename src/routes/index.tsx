@@ -20,10 +20,10 @@ export const Route = createFileRoute("/")({
         content:
           "Latest newsletters, updates and announcements from KHM Technology. People. Progress. Innovation. One connected vision.",
       },
-      { property: "og:title", content: "KHM Info Hub" },
+      { property: "og:title", content: "KHM Info Hub — News, ideas and progress from across KHM" },
       {
         property: "og:description",
-        content: "News, ideas and progress from across KHM.",
+        content: "Latest newsletters, updates and announcements from KHM Technology. People. Progress. Innovation. One connected vision.",
       },
     ],
   }),

@@ -83,16 +83,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "The KHM Info Hub is the internal newsletter portal for KHM Technology. Read published editions covering people, technology, achievements and company updates.",
+          "Latest newsletters, updates and announcements from KHM Technology. People. Progress. Innovation. One connected vision.",
       },
       { property: "og:site_name", content: "KHM Info Hub" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "KHM Info Hub" },
+      { property: "og:title", content: "KHM Info Hub — News, ideas and progress from across KHM" },
       {
         property: "og:description",
-        content: "News, ideas and progress from across KHM.",
+        content: "Latest newsletters, updates and announcements from KHM Technology. People. Progress. Innovation. One connected vision.",
       },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "KHM Info Hub — News, ideas and progress from across KHM" },
+      { name: "twitter:description", content: "Latest newsletters, updates and announcements from KHM Technology. People. Progress. Innovation. One connected vision." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bff16fe6-df37-43bd-83f7-c2a696262cbf/id-preview-3ea6b705--b317aaa3-1e86-4d4a-98e4-ea0d7102aa27.lovable.app-1784803496963.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bff16fe6-df37-43bd-83f7-c2a696262cbf/id-preview-3ea6b705--b317aaa3-1e86-4d4a-98e4-ea0d7102aa27.lovable.app-1784803496963.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
