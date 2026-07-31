@@ -324,7 +324,61 @@ export function NewsletterForm({ existing }: Props) {
 
   return (
     <div className="space-y-8">
+      <div className="border border-[var(--brand)]/40 bg-surface p-6">
+        <Eyebrow tone="brand">STEP 1 — PDF &amp; AI AUTO-FILL</Eyebrow>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          Attach the edition PDF first, then let AI draft the title, short description,
+          categories, keywords, spotlight and a matching cover. You review everything before it
+          is applied.
+        </p>
+
+        <Label className="mt-5 block text-xs uppercase tracking-widest">
+          PDF file {existing ? "(replace)" : "*"}
+        </Label>
+        <input
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => setPdfFile(e.target.files?.[0] ?? null)}
+          className="mt-2 block w-full text-sm text-muted-foreground file:mr-4 file:cursor-pointer file:rounded-md file:border file:border-[var(--border)] file:bg-secondary file:px-4 file:py-2 file:text-sm file:text-foreground hover:file:bg-[color-mix(in_oklab,var(--secondary)_80%,var(--brand))]"
+        />
+        {pdfFile && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {pdfFile.name} — {formatBytes(pdfFile.size)}
+          </p>
+        )}
+        {pdfError && <p className="mt-2 text-xs text-destructive">{pdfError}</p>}
+        {existing && !pdfFile && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Current: {existing.pdf_filename ?? existing.pdf_path}
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={autoFillFromPdf}
+          disabled={!pdfFile || !!pdfError || !!aiBusy || !!busy}
+          className="mt-4 inline-flex h-10 items-center gap-2 rounded-md border border-[var(--brand)]/50 bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-4 text-sm font-medium text-[var(--brand)] hover:bg-[color-mix(in_oklab,var(--brand)_22%,transparent)] disabled:opacity-50"
+        >
+          {aiBusy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {aiBusy === "analyze"
+            ? "Reading PDF…"
+            : aiBusy === "cover"
+              ? "Generating cover…"
+              : "Auto-fill with AI"}
+        </button>
+        {!pdfFile && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Upload the PDF above to enable AI auto-fill.
+          </p>
+        )}
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2">
+
         <Field label="Newsletter title" required>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} className="bg-background border-[var(--border)]" />
         </Field>
