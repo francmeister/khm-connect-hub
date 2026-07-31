@@ -25,6 +25,21 @@ interface Props {
   existing?: NewsletterRow;
 }
 
+interface AiProposal {
+  title: string;
+  edition_number: string;
+  publication_date: string;
+  description: string;
+  categories: string[];
+  keywords: string[];
+  tech_spotlight_title?: string | null;
+  tech_spotlight_description?: string | null;
+  cover_prompt: string;
+  coverPath: string | null;
+  coverUrl: string | null;
+}
+
+
 export function NewsletterForm({ existing }: Props) {
   const navigate = useNavigate();
   const [title, setTitle] = useState(existing?.title ?? "");
@@ -44,11 +59,13 @@ export function NewsletterForm({ existing }: Props) {
   const [aiCoverPath, setAiCoverPath] = useState<string | null>(null);
   const [aiCoverPreview, setAiCoverPreview] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState<null | "analyze" | "cover">(null);
+  const [proposal, setProposal] = useState<AiProposal | null>(null);
   const [progress, setProgress] = useState(0);
   const [busy, setBusy] = useState<null | "publish" | "draft">(null);
 
   const analyzeFn = useServerFn(analyzeNewsletterPdf);
   const coverFn = useServerFn(generateNewsletterCover);
+
 
   useEffect(() => {
     if (!slugTouched) setSlug(slugify(title));
@@ -87,34 +104,68 @@ export function NewsletterForm({ existing }: Props) {
       return;
     }
     setAiBusy("analyze");
+    setProposal(null);
     try {
       toast.info("Reading PDF with AI…");
       const b64 = await fileToBase64(pdfFile);
       const meta = await analyzeFn({
         data: { pdfBase64: b64, filename: pdfFile.name },
       });
-      setTitle(meta.title);
-      setSlug(slugify(meta.title));
-      setSlugTouched(true);
-      setEdition(meta.edition_number);
-      setPubDate(meta.publication_date);
-      setDescription(meta.description);
-      setCategories(meta.categories.join(", "));
-      setKeywords(meta.keywords.join(", "));
-      if (meta.tech_spotlight_title) setSpotTitle(meta.tech_spotlight_title);
-      if (meta.tech_spotlight_description) setSpotDesc(meta.tech_spotlight_description);
       toast.success("Metadata extracted. Generating cover…");
       setAiBusy("cover");
-      const cover = await coverFn({ data: { prompt: meta.cover_prompt } });
-      setAiCoverPath(cover.path);
-      setAiCoverPreview(cover.signedUrl);
-      toast.success("Cover generated. Review then publish.");
+      let coverPath: string | null = null;
+      let coverUrl: string | null = null;
+      try {
+        const cover = await coverFn({ data: { prompt: meta.cover_prompt } });
+        coverPath = cover.path;
+        coverUrl = cover.signedUrl;
+      } catch {
+        toast.error("Cover generation failed — you can retry it in the preview.");
+      }
+      setProposal({ ...meta, coverPath, coverUrl });
+      toast.success("Preview ready — review before applying.");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "AI auto-fill failed");
     } finally {
       setAiBusy(null);
     }
   }
+
+  function applyProposal() {
+    if (!proposal) return;
+    setTitle(proposal.title);
+    setSlug(slugify(proposal.title));
+    setSlugTouched(true);
+    setEdition(proposal.edition_number);
+    setPubDate(proposal.publication_date);
+    setDescription(proposal.description);
+    setCategories(proposal.categories.join(", "));
+    setKeywords(proposal.keywords.join(", "));
+    if (proposal.tech_spotlight_title) setSpotTitle(proposal.tech_spotlight_title);
+    if (proposal.tech_spotlight_description) setSpotDesc(proposal.tech_spotlight_description);
+    if (proposal.coverPath) {
+      setAiCoverPath(proposal.coverPath);
+      setAiCoverPreview(proposal.coverUrl);
+      setCoverFile(null);
+    }
+    setProposal(null);
+    toast.success("Applied to the form. Review and save when ready.");
+  }
+
+  async function regenerateProposalCover() {
+    if (!proposal) return;
+    setAiBusy("cover");
+    try {
+      const cover = await coverFn({ data: { prompt: proposal.cover_prompt } });
+      setProposal({ ...proposal, coverPath: cover.path, coverUrl: cover.signedUrl });
+      toast.success("New cover generated.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Cover generation failed");
+    } finally {
+      setAiBusy(null);
+    }
+  }
+
 
   async function regenerateCover() {
     const prompt = [title, description, categories].filter(Boolean).join(". ");
@@ -402,6 +453,92 @@ export function NewsletterForm({ existing }: Props) {
         </div>
       </div>
 
+      {proposal && (
+        <div className="border border-[var(--brand)]/40 bg-surface p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Eyebrow tone="brand">AI EXTRACTION PREVIEW</Eyebrow>
+            <p className="text-xs text-muted-foreground">
+              Nothing is saved yet — review, then apply to the form.
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-6 md:grid-cols-[minmax(0,1fr)_10rem]">
+            <dl className="space-y-4">
+              <PreviewRow label="Title" value={proposal.title} />
+              <PreviewRow label="Edition" value={proposal.edition_number} />
+              <PreviewRow label="Publication date" value={proposal.publication_date} />
+              <PreviewRow label="Slug" value={slugify(proposal.title)} mono />
+              <PreviewRow label="Description" value={proposal.description} />
+              <PreviewRow
+                label="Categories"
+                value={proposal.categories.join(", ") || "—"}
+              />
+              <PreviewRow label="Keywords" value={proposal.keywords.join(", ") || "—"} />
+              <PreviewRow
+                label="Spotlight title"
+                value={proposal.tech_spotlight_title || "—"}
+              />
+              <PreviewRow
+                label="Spotlight description"
+                value={proposal.tech_spotlight_description || "—"}
+              />
+            </dl>
+
+            <div>
+              <Label className="text-xs uppercase tracking-widest">Cover</Label>
+              <div className="mt-2">
+                {proposal.coverUrl ? (
+                  <img
+                    src={proposal.coverUrl}
+                    alt="Proposed AI-generated cover"
+                    className="aspect-[3/4] w-40 border border-[var(--border)] object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-[3/4] w-40 items-center justify-center border border-dashed border-[var(--border)] text-center text-xs text-muted-foreground">
+                    No cover yet
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={regenerateProposalCover}
+                disabled={!!aiBusy || !!busy}
+                className="mt-3 inline-flex h-9 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-xs font-medium text-foreground hover:bg-secondary disabled:opacity-50"
+              >
+                {aiBusy === "cover" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Wand2 className="h-3.5 w-3.5" />
+                )}
+                {proposal.coverUrl ? "Regenerate" : "Generate cover"}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-[var(--border)] pt-5">
+            <button
+              type="button"
+              onClick={applyProposal}
+              disabled={!!aiBusy || !!busy}
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-[var(--brand-strong)] disabled:opacity-60"
+            >
+              <Sparkles className="h-4 w-4" />
+              Apply to form
+            </button>
+            <button
+              type="button"
+              onClick={() => setProposal(null)}
+              disabled={!!aiBusy}
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-[var(--border)] px-5 text-sm font-medium text-foreground hover:bg-secondary disabled:opacity-60"
+            >
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
+
+
+
       <div className="border border-[var(--border)] bg-surface p-6">
         <Eyebrow>TECHNOLOGY SPOTLIGHT (OPTIONAL)</Eyebrow>
         <div className="mt-4 space-y-4">
@@ -472,6 +609,23 @@ function Field({
       </Label>
       <div className="mt-2">{children}</div>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
+function PreviewRow({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="grid gap-1 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4">
+      <dt className="text-xs uppercase tracking-widest text-muted-foreground">{label}</dt>
+      <dd className={`text-sm text-foreground ${mono ? "font-mono" : ""}`}>{value}</dd>
     </div>
   );
 }
