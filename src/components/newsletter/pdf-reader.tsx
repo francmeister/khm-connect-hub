@@ -50,6 +50,8 @@ export function PdfReader({
   const pageRefs = useRef<PageEl[]>([]);
   const rendered = useRef<Set<number>>(new Set());
   const restoring = useRef(false);
+  const saveTimer = useRef<number | null>(null);
+
 
   // Load any saved position for this edition
   useEffect(() => {
