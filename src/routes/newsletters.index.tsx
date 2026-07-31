@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { stripSearchParams } from "@tanstack/react-router";
 import { z } from "zod";
 import { searchPublishedNewsletters } from "@/lib/newsletters";
 import { SiteLayout } from "@/components/site/site-layout";
@@ -33,8 +34,21 @@ const searchSchema = z.object({
   sort: fallback(z.string(), "newest").default("newest"),
 });
 
+const defaultSearch = {
+  q: "",
+  year: ALL,
+  month: ALL,
+  category: ALL,
+  keyword: ALL,
+  edition: "",
+  from: "",
+  to: "",
+  sort: "newest",
+};
+
 export const Route = createFileRoute("/newsletters/")({
   validateSearch: zodValidator(searchSchema),
+  search: { middlewares: [stripSearchParams(defaultSearch)] },
   head: () => ({
     meta: [
       { title: "Newsletter Archive — KHM Info Hub" },
@@ -154,17 +168,7 @@ function ArchivePage() {
 
   function clearAll() {
     navigate({
-      search: {
-        q: "",
-        year: ALL,
-        month: ALL,
-        category: ALL,
-        keyword: ALL,
-        edition: "",
-        from: "",
-        to: "",
-        sort: "newest",
-      },
+      search: defaultSearch,
       replace: true,
     });
   }
