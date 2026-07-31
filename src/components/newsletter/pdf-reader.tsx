@@ -67,10 +67,9 @@ export function PdfReader({ url, title }: { url: string; title: string }) {
         canvas.style.display = "block";
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+        await page.render({ canvasContext: ctx, viewport }).promise;
         container.replaceChildren(canvas);
-      } catch (e) {
-        console.error('pdf page render failed', pageNumber, e);
+      } catch {
         rendered.current.delete(pageNumber);
       }
     },
@@ -310,7 +309,7 @@ function Thumbnail({
           canvas.style.display = "block";
           const ctx = canvas.getContext("2d");
           if (!ctx) return;
-          await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+          await page.render({ canvasContext: ctx, viewport }).promise;
           el.replaceChildren(canvas);
         } catch {
           done.current = false;
