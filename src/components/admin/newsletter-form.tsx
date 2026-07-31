@@ -612,3 +612,20 @@ function Field({
     </div>
   );
 }
+
+function PreviewRow({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="grid gap-1 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4">
+      <dt className="text-xs uppercase tracking-widest text-muted-foreground">{label}</dt>
+      <dd className={`text-sm text-foreground ${mono ? "font-mono" : ""}`}>{value}</dd>
+    </div>
+  );
+}
