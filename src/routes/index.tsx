@@ -57,7 +57,7 @@ function HomePage() {
   const previous = newsletters.slice(1, 7);
 
   return (
-    <SiteLayout>
+    <SiteLayout headerLogoHeight={52}>
       <Hero latest={latest} loading={isLoading} />
       {latest && <LatestBlock latest={latest} />}
       <PreviousBlock items={previous} loading={isLoading} />
