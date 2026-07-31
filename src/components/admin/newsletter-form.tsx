@@ -315,7 +315,13 @@ export function NewsletterForm({ existing }: Props) {
       if (uploadedPdfPath) await supabase.storage.from(PDF_BUCKET).remove([uploadedPdfPath]);
       if (uploadedCoverPath)
         await supabase.storage.from(COVER_BUCKET).remove([uploadedCoverPath]);
-      toast.error(err instanceof Error ? err.message : "Save failed");
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Save failed";
+      toast.error(msg);
     } finally {
       setBusy(null);
       setTimeout(() => setProgress(0), 800);
