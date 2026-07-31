@@ -138,13 +138,26 @@ export function PdfReader({
 
     const onScroll = () => {
       const max = root.scrollHeight - root.clientHeight;
-      setProgress(max > 0 ? Math.min(100, Math.max(0, (root.scrollTop / max) * 100)) : 0);
+      const percent = max > 0 ? Math.min(100, Math.max(0, (root.scrollTop / max) * 100)) : 0;
+      setProgress(percent);
       const mid = root.scrollTop + root.clientHeight * 0.35;
       let page = 1;
       pageRefs.current.forEach((el, i) => {
         if (el && el.offsetTop <= mid) page = i + 1;
       });
       setCurrent(page);
+
+      if (restoring.current) return;
+      const el = pageRefs.current[page - 1];
+      if (saveTimer.current) window.clearTimeout(saveTimer.current);
+      saveTimer.current = window.setTimeout(() => {
+        saveReadingProgress(slug, {
+          page,
+          offset: el ? Math.round(root.scrollTop - el.offsetTop) : 0,
+          percent: Math.round(percent),
+          numPages: pageRefs.current.length,
+        });
+      }, 400);
     };
     root.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
@@ -152,14 +165,48 @@ export function PdfReader({
     return () => {
       observer.disconnect();
       root.removeEventListener("scroll", onScroll);
+      if (saveTimer.current) window.clearTimeout(saveTimer.current);
     };
-  }, [doc, numPages, renderPage]);
+  }, [doc, numPages, renderPage, slug]);
 
   const goToPage = useCallback((p: number) => {
     const el = pageRefs.current[p - 1];
     const root = scrollRef.current;
     if (el && root) root.scrollTo({ top: el.offsetTop - 12, behavior: "smooth" });
   }, []);
+
+  // Resume: scroll to the saved page/offset, re-aligning as pages finish rendering
+  const resume = useCallback(() => {
+    const target = saved;
+    const root = scrollRef.current;
+    if (!target || !root) return;
+    setResumed(true);
+    restoring.current = true;
+
+    let ticks = 0;
+    const align = () => {
+      const el = pageRefs.current[Math.min(target.page, pageRefs.current.length) - 1];
+      if (el) root.scrollTop = Math.max(0, el.offsetTop + target.offset);
+      ticks += 1;
+      if (ticks < 12) {
+        window.setTimeout(align, 150);
+      } else {
+        restoring.current = false;
+      }
+    };
+    align();
+  }, [saved]);
+
+  const startOver = useCallback(() => {
+    clearReadingProgress(slug);
+    setSaved(null);
+    setResumed(true);
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [slug]);
+
+  const showResume =
+    !resumed && !!saved && !!doc && (saved.page > 1 || saved.offset > 200) && saved.percent < 98;
+
 
   if (error) {
     return (
