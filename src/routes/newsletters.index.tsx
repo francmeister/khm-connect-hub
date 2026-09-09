@@ -172,7 +172,7 @@ function ArchivePage() {
 
   function clearAll() {
     navigate({
-      search: defaultSearch,
+      search: defaultSearch as never,
       replace: true,
     });
   }
