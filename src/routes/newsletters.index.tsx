@@ -68,11 +68,15 @@ export const Route = createFileRoute("/newsletters/")({
 
 function ArchivePage() {
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/newsletters" });
+  const navigate = useNavigate({ from: "/newsletters/" });
 
   type ArchiveSearch = z.infer<typeof searchSchema>;
   const setParam = (patch: Partial<ArchiveSearch>) =>
-    navigate({ search: (prev: ArchiveSearch) => ({ ...prev, ...patch }), replace: true });
+    navigate({
+      search: ((prev: ArchiveSearch) => ({ ...prev, ...patch })) as never,
+      replace: true,
+    });
+
 
   // Debounced text inputs (URL stays clean while typing)
   const [qInput, setQInput] = useState(search.q);
@@ -168,7 +172,7 @@ function ArchivePage() {
 
   function clearAll() {
     navigate({
-      search: defaultSearch,
+      search: defaultSearch as never,
       replace: true,
     });
   }
