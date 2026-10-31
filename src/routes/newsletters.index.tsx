@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, type SearchSchemaInput } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fallback } from "@tanstack/zod-adapter";
@@ -47,7 +47,7 @@ const defaultSearch = {
 };
 
 export const Route = createFileRoute("/newsletters/")({
-  validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
+  validateSearch: (input: z.input<typeof searchSchema> & SearchSchemaInput) => searchSchema.parse(input),
   search: { middlewares: [stripSearchParams(defaultSearch)] },
   head: () => ({
     meta: [
