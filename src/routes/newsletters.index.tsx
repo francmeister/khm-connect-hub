@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { fallback } from "@tanstack/zod-adapter";
 import { stripSearchParams } from "@tanstack/react-router";
 import { z } from "zod";
 import { searchPublishedNewsletters } from "@/lib/newsletters";
@@ -47,7 +47,7 @@ const defaultSearch = {
 };
 
 export const Route = createFileRoute("/newsletters/")({
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (input: Record<string, unknown>) => searchSchema.parse(input),
   search: { middlewares: [stripSearchParams(defaultSearch)] },
   head: () => ({
     meta: [
